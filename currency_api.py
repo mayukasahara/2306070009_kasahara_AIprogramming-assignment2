@@ -1,20 +1,39 @@
-import requests
+import json
+import random
+import urllib.request
 
-API_URL = "https://api.exchangerate.host/latest"
+API_URL = "https://restcountries.com/v3.1/all"
 
-def get_exchange_rate(base: str, target: str) -> float:
-    params = {
-        "base": base.upper(),
-        "symbols": target.upper()
-    }
-    response = requests.get(API_URL, params=params)
-    response.raise_for_status()
-    data = response.json()
+def fetch_countries():
+    try:
+        with urllib.request.urlopen(API_URL) as res:
+            data = json.loads(res.read())
+        # 首都がある国だけに絞る
+        countries = [c for c in data if c.get("capital")]
+        return countries
+    except Exception as e:
+        print("API取得エラー:", e)
+        return []
 
-    print("APIレスポンス:", data)  # ここでレスポンス全体を表示
+def generate_question(countries, asked_countries):
+    # まだ出題していない国から選ぶ
+    available = [c for c in countries if c["name"]["common"] not in asked_countries and c.get("capital")]
+    if not available:
+        return None, None, None  # 問題なし
 
-    rates = data.get("rates")
-    if rates and target.upper() in rates:
-        return float(rates[target.upper()])
-    else:
-        raise ValueError(f"為替レートが見つかりませんでした: {base} → {target}")
+    country = random.choice(available)
+    correct_capital = country["capital"][0]
+    country_name = country["name"]["common"]
+
+    # 選択肢作成（正解＋ランダムに3つの不正解）
+    options = set()
+    options.add(correct_capital)
+    while len(options) < 4:
+        c = random.choice(countries)
+        cap = c.get("capital")
+        if cap:
+            options.add(cap[0])
+    options = list(options)
+    random.shuffle(options)
+
+    return country_name, correct_capital, options
