@@ -11,10 +11,10 @@ def get_exchange_rate(base: str, target: str) -> float:
     response.raise_for_status()
     data = response.json()
 
-    print("APIからのレスポンス:", data)  # ←追加
+    print("APIレスポンス:", data)  # ここでレスポンス全体を表示
 
     rates = data.get("rates")
     if rates and target.upper() in rates:
         return float(rates[target.upper()])
     else:
-        raise ValueError(f"為替レートが見つかりませんでした: {base} -> {target}")
+        raise ValueError(f"為替レートが見つかりませんでした: {base} → {target}")
