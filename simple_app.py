@@ -1,6 +1,7 @@
 import json
 import random
 import urllib.request
+import streamlit as st
 
 # APIから国の情報を取得
 def fetch_country_data():
