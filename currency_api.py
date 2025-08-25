@@ -3,9 +3,6 @@ import requests
 API_URL = "https://api.exchangerate.host/latest"
 
 def get_exchange_rate(base: str, target: str) -> float:
-    """
-    base通貨からtarget通貨への為替レートを取得
-    """
     params = {
         "base": base.upper(),
         "symbols": target.upper()
@@ -14,7 +11,10 @@ def get_exchange_rate(base: str, target: str) -> float:
     response.raise_for_status()
     data = response.json()
 
-    if "rates" in data and target.upper() in data["rates"]:
-        return data["rates"][target.upper()]
+    print("APIからのレスポンス:", data)  # ←追加
+
+    rates = data.get("rates")
+    if rates and target.upper() in rates:
+        return float(rates[target.upper()])
     else:
-        raise ValueError("為替レートが見つかりませんでした。")
+        raise ValueError(f"為替レートが見つかりませんでした: {base} -> {target}")
