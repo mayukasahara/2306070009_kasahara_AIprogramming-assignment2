@@ -12,7 +12,8 @@ def fetch_countries():
             data = json.load(f)
     else:
         try:
-            url = "https://restcountries.com/v3.1/all"
+            # 最新API仕様に対応（fields指定が必須）
+            url = "https://restcountries.com/v3.1/all?fields=name,capital"
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req) as res:
                 data = json.loads(res.read())
@@ -22,20 +23,20 @@ def fetch_countries():
             print(f"[ERROR] 国データ取得失敗: {e}")
             return []
 
+    # capitalがある国だけ抽出
     return [c for c in data if c.get("capital") and c.get("name", {}).get("common")]
 
-# クイズ1問を生成
+# クイズ1問を作成
 def generate_question(countries, asked):
     while True:
         country = random.choice(countries)
-        if country["name"]["common"] not in asked:
+        country_name = country["name"]["common"]
+        if country_name not in asked:
             break
 
-    country_name = country["name"]["common"]
     correct_capital = country["capital"][0]
-
-    # 誤答を3つ作成
     incorrect = []
+
     while len(incorrect) < 3:
         choice = random.choice(countries)
         cap = choice.get("capital", [])
